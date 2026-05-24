@@ -1,4 +1,4 @@
-# TDS Sentinel — Flutter Web App
+# TDS Sentinel — Flutter App
 
 **Versión:** 3.2.0 · **Framework:** Flutter 3.x · **Target:** Web (Chrome / Safari)
 
