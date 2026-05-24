@@ -1,6 +1,5 @@
 // lib/screens/login_screen.dart — TDS Sentinel
 import 'package:flutter/material.dart';
-import '../models/app_state.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
@@ -33,11 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _loading = true; _error = null; });
     try {
-      final client = await ApiService.instance.login(
+      await ApiService.instance.login(
         _emailCtrl.text.trim(),
         _passCtrl.text,
       );
-      AppState.instance.login(client);
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
