@@ -125,6 +125,12 @@ echo "════════════════════════�
 echo "  TDS Sentinel — Iniciando API (HTTP)"
 echo "══════════════════════════════════════════"
 
+# ── 0. Git config global ──────────────────────────────────────────────────────
+# Se aplica en cada arranque — garantiza identidad correcta incluso si el
+# contenedor fue recreado o clonado en otro Codespace.
+git config --global user.name  "danielmunozus"
+git config --global user.email "hello@danielmunoz.us"
+
 # ── 1. Detener instancia previa ───────────────────────────────────────────────
 if pgrep -f "supervisord" > /dev/null 2>&1; then
   echo "→ Deteniendo supervisord previo..."

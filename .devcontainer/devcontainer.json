@@ -19,7 +19,8 @@
   "postCreateCommand": {
     "venv-setup":   "cd /workspaces/tds-sentinel-mvp-v3-2-0/backend && (test -d .venv || /usr/bin/python3 -m venv .venv) && .venv/bin/pip install -r requirements.txt -q && echo '✅ venv listo'",
     "env-setup":    "cd /workspaces/tds-sentinel-mvp-v3-2-0/backend && (test -f .env || (cp .env.example .env && /usr/bin/python3 -c \"import secrets; content=open('.env').read().replace('REEMPLAZA_CON_UN_VALOR_SECRETO_SEGURO', secrets.token_hex(32)); open('.env','w').write(content)\")) && echo '✅ .env listo'",
-    "flutter-deps": "cd /workspaces/tds-sentinel-mvp-v3-2-0/mobile/sentinel_mobile && flutter pub get && echo '✅ Flutter deps listos'"
+    "flutter-deps": "cd /workspaces/tds-sentinel-mvp-v3-2-0/mobile/sentinel_mobile && flutter pub get && echo '✅ Flutter deps listos'",
+    "git-config":   "git config --global user.name 'danielmunozus' && git config --global user.email 'hello@danielmunoz.us' && echo '✅ git config listo'"
   },
 
   "postStartCommand": "bash /workspaces/tds-sentinel-mvp-v3-2-0/backend/start.sh",
