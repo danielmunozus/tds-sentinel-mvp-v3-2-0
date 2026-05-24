@@ -140,16 +140,9 @@ fi
 pkill -f "server.py" 2>/dev/null || true
 sleep 1
 
-# ── 1b. Pre-configurar visibilidad pública del puerto ────────────────────────
-# Se ejecuta aquí (antes de que Flask arranque) para que cuando Codespaces
-# detecte el puerto abierto ya lo trate como público desde el primer momento.
-if [[ -n "${CODESPACE_NAME:-}" ]]; then
-  DOMAIN="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
-  echo "→ Pre-configurando puerto $PORT como público..."
-  gh codespace ports visibility "${PORT}:public" -c "$CODESPACE_NAME" 2>/dev/null \
-    && ok "Puerto $PORT → público (pre-configurado)" \
-    || warn "gh no disponible aún — se reintentará al final del arranque"
-fi
+# ── 1b. Visibilidad del puerto ────────────────────────────────────────────────
+# El puerto se configura como público DESPUÉS de que Flask responda (paso 7).
+# No se intenta aquí: Codespaces no puede hacer forward de un puerto cerrado.
 
 # ── 2. Verificar integridad del venv ─────────────────────────────────────────
 # Detecta symlinks rotos (ej: venv creado en imagen Codespaces estándar pero
@@ -240,19 +233,60 @@ done
 # ── 7. Confirmar visibilidad pública y mostrar URL ───────────────────────────
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
   DOMAIN="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
-  # Segundo intento: ahora el puerto SÍ está forwarded, el comando no puede fallar
-  gh codespace ports visibility "${PORT}:public" -c "$CODESPACE_NAME" 2>/dev/null \
-    && ok "Puerto $PORT confirmado como público" \
-    || warn "gh CLI no disponible — marca el puerto como público en la UI de Codespaces"
+  PUBLIC_URL="https://${CODESPACE_NAME}-${PORT}.${DOMAIN}"
+  HEALTH_URL="${PUBLIC_URL}/api/health"
+  _port_public=false
+
+  # Método 1: gh CLI (busca en rutas alternativas si no está en $PATH)
+  _GH=""
+  for _p in gh /usr/bin/gh /usr/local/bin/gh /home/codespace/.local/bin/gh \
+             /home/vscode/.local/bin/gh /opt/homebrew/bin/gh; do
+    command -v "$_p" &>/dev/null && _GH="$_p" && break
+  done
+  if [[ -n "$_GH" ]]; then
+    "$_GH" codespace ports visibility "${PORT}:public" -c "$CODESPACE_NAME" 2>/dev/null \
+      && _port_public=true && ok "Puerto $PORT → público (gh CLI)"
+  fi
+
+  # Método 2: GitHub REST API con GITHUB_TOKEN (sin gh CLI)
+  if [[ "$_port_public" == "false" && -n "${GITHUB_TOKEN:-}" ]]; then
+    _HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+      -X PATCH \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      "https://api.github.com/user/codespaces/${CODESPACE_NAME}/ports/${PORT}" \
+      -d '{"visibility":"public"}' 2>/dev/null)
+    if [[ "$_HTTP" == "200" ]]; then
+      _port_public=true
+      ok "Puerto $PORT → público (REST API)"
+    else
+      info "REST API respondió HTTP $_HTTP (GITHUB_TOKEN sin scope 'codespace')"
+    fi
+  fi
 
   echo ""
   echo "══════════════════════════════════════════"
   ok "API disponible (HTTPS via proxy) en:"
-  echo "   🌐 https://${CODESPACE_NAME}-${PORT}.${DOMAIN}"
+  echo "   🌐 $PUBLIC_URL"
+  echo "   🩺 $HEALTH_URL"
   echo "══════════════════════════════════════════"
+
+  if [[ "$_port_public" == "true" ]]; then
+    # Puerto confirmado público → lanzar la app en nueva pestaña
+    echo "→ Puerto público confirmado. Abriendo app..."
+    sleep 1  # pausa para que VS Code registre el forward
+    code --open-url "$PUBLIC_URL" 2>/dev/null \
+      && ok "App abierta en nueva pestaña del navegador" \
+      || info "Visita manualmente: $PUBLIC_URL"
+  else
+    warn "Puerto aún privado — marca el puerto $PORT como Public en la pestaña Ports"
+    warn "Luego visita: $PUBLIC_URL"
+  fi
 else
   echo ""
   ok "API disponible en: http://localhost:${PORT}"
+  echo "   Salud: curl http://127.0.0.1:${PORT}/api/health"
 fi
 
 echo ""

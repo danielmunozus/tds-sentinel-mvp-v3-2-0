@@ -40,6 +40,11 @@ bash start.sh
 
 Verificar: `curl http://127.0.0.1:5000/api/health`
 
+Respuesta esperada:
+```json
+{"message":"TDS Sentinel API is running","status":"ok","version":"3.2.1"}
+```
+
 ### 2. Flutter Web (recompilar build)
 
 ```bash
@@ -213,7 +218,7 @@ La base de datos incluye migración automática desde schemas v1.x y v2.x al ini
 
 ```bash
 # Desde la raíz del proyecto
-/workspaces/tds-sentinel-mvp/.venv/bin/python3 -m pytest backend/tests/ -v
+/workspaces/tds-sentinel-mvp-v3-2-0/backend/.venv/bin/python3 -m pytest backend/tests/ -v
 ```
 
 Suite actual: **23 tests** cubriendo login, validación de campos, credenciales incorrectas, estados de cuenta y métodos HTTP.
