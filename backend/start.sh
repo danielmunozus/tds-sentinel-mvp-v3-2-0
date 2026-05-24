@@ -20,9 +20,9 @@ set -euo pipefail
 # ── Rutas ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-VENV_PY="$ROOT_DIR/.venv/bin/python"
-VENV_SUPERVISORD="$ROOT_DIR/.venv/bin/supervisord"
-VENV_SUPERVISORCTL="$ROOT_DIR/.venv/bin/supervisorctl"
+VENV_PY="$SCRIPT_DIR/.venv/bin/python"
+VENV_SUPERVISORD="$SCRIPT_DIR/.venv/bin/supervisord"
+VENV_SUPERVISORCTL="$SCRIPT_DIR/.venv/bin/supervisorctl"
 SYS_PY="/usr/bin/python3"
 LOG_FILE="/tmp/sentinel.log"
 SUPERVISORD_CONF="$SCRIPT_DIR/supervisord.conf"
