@@ -1,0 +1,134 @@
+# ==========================================
+# TDS Sentinel MVP v3.2.0
+# Production .gitignore
+# Public Portfolio / Deploy / Academic Repo
+# Stack: Flask + Python + SQLite + Flutter Web
+# ==========================================
+
+# ==========================================
+# Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+
+# Type checkers / lint
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+.nox/
+
+# Logs
+*.log
+
+# ==========================================
+# Database / local state
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# If using Flask instance folder locally
+instance/
+
+# ==========================================
+# Environment / secrets
+# ==========================================
+.env
+.env.*
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+
+# ==========================================
+# macOS
+# ==========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# ==========================================
+# VSCode / IDE
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# Flutter / Dart
+# ==========================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Flutter generated
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# ==========================================
+# Flutter web build artifacts
+# (only ignore if generated locally)
+# ==========================================
+mobile/sentinel_mobile/build/
+
+# ==========================================
+# Temporary / cache files / Test
+# ==========================================
+tmp/
+temp/
+cache/
+test_cache/
+
+# Generic hashed temp folders
+cbad02f7324c9ac35deb02a43bfae7b7/
+
+# ==========================================
+# GitHub / Codespaces local
+# ==========================================
+.devcontainer/
+.claude/
+
+# ==========================================
+# Node (if tooling exists)
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# OS generated
+# ==========================================
+Thumbs.db
+Desktop.ini
