@@ -140,6 +140,17 @@ fi
 pkill -f "server.py" 2>/dev/null || true
 sleep 1
 
+# ── 1b. Pre-configurar visibilidad pública del puerto ────────────────────────
+# Se ejecuta aquí (antes de que Flask arranque) para que cuando Codespaces
+# detecte el puerto abierto ya lo trate como público desde el primer momento.
+if [[ -n "${CODESPACE_NAME:-}" ]]; then
+  DOMAIN="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
+  echo "→ Pre-configurando puerto $PORT como público..."
+  gh codespace ports visibility "${PORT}:public" -c "$CODESPACE_NAME" 2>/dev/null \
+    && ok "Puerto $PORT → público (pre-configurado)" \
+    || warn "gh no disponible aún — se reintentará al final del arranque"
+fi
+
 # ── 2. Verificar integridad del venv ─────────────────────────────────────────
 # Detecta symlinks rotos (ej: venv creado en imagen Codespaces estándar pero
 # ejecutado en imagen Flutter que no tiene /home/codespace). Si el Python del
@@ -226,12 +237,12 @@ for i in $(seq 1 20); do
   fi
 done
 
-# ── 7. Exponer el puerto como público en Codespaces ──────────────────────────
+# ── 7. Confirmar visibilidad pública y mostrar URL ───────────────────────────
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
   DOMAIN="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
-  echo "→ Configurando visibilidad pública del puerto $PORT..."
+  # Segundo intento: ahora el puerto SÍ está forwarded, el comando no puede fallar
   gh codespace ports visibility "${PORT}:public" -c "$CODESPACE_NAME" 2>/dev/null \
-    && ok "Puerto $PORT → público" \
+    && ok "Puerto $PORT confirmado como público" \
     || warn "gh CLI no disponible — marca el puerto como público en la UI de Codespaces"
 
   echo ""

@@ -1,18 +1,19 @@
 {
   "name": "TDS Sentinel MVP",
   "image": "ghcr.io/cirruslabs/flutter:stable",
+  "workspaceFolder": "/workspaces/tds-sentinel-mvp-v3-2-0",
 
   "forwardPorts": [5000, 8080],
   "portsAttributes": {
     "5000": {
       "label": "Sentinel API",
-      "onAutoForward": "openBrowser",
+      "onAutoForward": "openBrowserOnce",
       "visibility": "public",
       "protocol": "http"
     },
     "8080": {
       "label": "Flutter Web",
-      "onAutoForward": "notify"
+      "onAutoForward": "silent"
     }
   },
 
