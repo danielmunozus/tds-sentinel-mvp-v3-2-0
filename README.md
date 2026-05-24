@@ -30,12 +30,12 @@ Flask actúa como servidor único: sirve el build de Flutter Web como archivos e
 
 ```bash
 cd backend
-python3 -m venv .venv && source .venv/bin/activate
+/usr/bin/python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 # Completar SECRET_KEY en .env:
 # python3 -c "import secrets; print(secrets.token_hex(32))"
-python3 app.py
+bash start.sh
 ```
 
 Verificar: `curl http://127.0.0.1:5000/api/health`
@@ -52,8 +52,8 @@ bash rebuild_web.sh
 
 Abre el repositorio en GitHub → **Code → Codespaces → Create codespace**.  
 El entorno instala dependencias automáticamente.  
-Corre `cd backend && python3 app.py` para levantar la API + frontend.  
-El puerto 5000 se expone públicamente con HTTPS automático de Codespaces.
+Corre `bash backend/start.sh` para levantar la API + frontend (supervisord con auto-restart).  
+El puerto 5000 se expone públicamente en HTTP — Codespaces provee HTTPS externamente via proxy.
 
 ---
 
@@ -66,7 +66,7 @@ tds-sentinel-mvp/
 ├── backend/
 │   ├── app.py                      ← Flask app + blueprints + static serving + security headers
 │   ├── auth_utils.py               ← login_required decorator + Bearer token validation
-│   ├── config.py                   ← Configuración via .env (v3.2.0)
+│   ├── config.py                   ← Configuración via .env (v3.2.1)
 │   ├── database.py                 ← SQLite schema v3 + sessions + migraciones automáticas
 │   ├── risk_engine.py              ← Motor de scoring y recomendaciones
 │   ├── server.py                   ← Entrada alternativa (gunicorn-ready)

@@ -1,4 +1,4 @@
-# TDS Sentinel — Security Controls (v3.2.0)
+# TDS Sentinel — Security Controls (v3.2.1)
 
 ## Controles de seguridad implementados
 

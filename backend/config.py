@@ -60,7 +60,7 @@ class Config:
 
     # ── API ────────────────────────────────────────────────────────────────
     API_PREFIX: str = "/api"
-    API_VERSION: str = "3.2.0"
+    API_VERSION: str = "3.2.1"
     APP_NAME: str = "TDS Sentinel API"
 
     @classmethod

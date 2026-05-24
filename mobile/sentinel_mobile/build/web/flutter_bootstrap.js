@@ -37,9 +37,11 @@ _flutter.buildConfig = {"engineRevision":"4c525dac5ebe5971c5708ef73558ed8edcf4a3
 
 _flutter.loader.load({
   serviceWorkerSettings: {
-    serviceWorkerVersion: "847718149" /* Flutter's service worker is deprecated and will be removed in a future Flutter release. */
+    serviceWorkerVersion: "1436874635" /* Flutter's service worker is deprecated and will be removed in a future Flutter release. */
   },
   config: {
-    canvasKitBaseUrl: "canvaskit/"
+    // Forzar carga local de CanvasKit — evita fetch a www.gstatic.com que el CSP bloquea.
+    // Todos los archivos .js/.wasm ya están incluidos en build/web/canvaskit/
+    canvasKitBaseUrl: '/canvaskit/'
   }
 });

@@ -134,7 +134,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                        'Completa el formulario y el equipo de TDS se contactará a la brevedad.',
+                        'Completa el formulario y el equipo de TDS te enviará tu propuesta y contará a la brevedad',
                         style: TextStyle(
                             fontSize: 13,
                             color: AppColors.textMain,

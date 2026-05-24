@@ -1,7 +1,7 @@
 # TDS Sentinel — Developer Guide
 
 **TDS Sentinel** es una plataforma de evaluación de riesgos de ciberseguridad para PYMEs.  
-**Versión:** 3.2.0 · **Schema DB:** v3.0.0 · **QA:** ✅ Aprobado (Mayo 2026)
+**Versión:** 3.2.1 · **Schema DB:** v3.0.0 · **QA:** ✅ Aprobado · **Estado:** Producción (Mayo 2026)
 
 Stack: Flutter Web → Flask (static + API) → SQLite
 
@@ -14,7 +14,7 @@ tds-sentinel-mvp/
 ├── backend/
 │   ├── app.py              Punto de entrada — Flask + blueprints + SPA serving + security headers
 │   ├── auth_utils.py       login_required decorator + validación de Bearer tokens
-│   ├── config.py           Configuración via variables de entorno (v3.2.0)
+│   ├── config.py           Configuración via variables de entorno (v3.2.1)
 │   ├── database.py         Schema v3 + tabla sessions + migraciones automáticas
 │   ├── risk_engine.py      Motor de scoring y recomendaciones
 │   ├── server.py           Entrada alternativa (gunicorn-ready)
@@ -56,9 +56,13 @@ tds-sentinel-mvp/
 
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate    # macOS/Linux
+/usr/bin/python3 -m venv .venv   # usar Python del sistema — evita symlinks rotos en imagen Flutter
+source .venv/bin/activate
 ```
+
+> **Nota Codespaces:** la imagen `ghcr.io/cirruslabs/flutter:stable` no tiene `/home/codespace`.
+> Usar `/usr/bin/python3` explícito evita el error de venv con symlinks rotos.
+> `start.sh` detecta y auto-repara el venv si los symlinks están rotos al arrancar.
 
 ### 3. Instalar dependencias
 
@@ -92,13 +96,20 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 ### 5. Correr la API
 
 ```bash
+bash start.sh   # recomendado: supervisord con auto-restart
+```
+
+Alternativa para desarrollo directo (sin supervisord):
+
+```bash
 python3 app.py
 ```
 
-Output esperado:
+Output esperado con `start.sh`:
 
 ```
-[Sentinel] Base de datos lista → /ruta/al/sentinel.db
+✅  Flask respondiendo en http://127.0.0.1:5000
+✅  API disponible (HTTPS via proxy) en: https://<codespace>-5000.app.github.dev
 ```
 
 ### 6. Verificar health check
@@ -113,9 +124,27 @@ Respuesta esperada:
 {
   "status": "ok",
   "message": "TDS Sentinel API is running",
-  "version": "3.2.0"
+  "version": "3.2.1"
 }
 ```
+
+### Nota Codespaces — puerto público y HTTPS
+
+El puerto 5000 se declara como público en [`.devcontainer/devcontainer.json`](../../.devcontainer/devcontainer.json):
+
+```json
+"portsAttributes": {
+  "5000": { "visibility": "public", "protocol": "http" }
+}
+```
+
+Flask sirve **HTTP puro** en `0.0.0.0:5000`. El proxy de Codespaces termina SSL externamente:
+
+```
+Browser → HTTPS → Codespaces proxy → HTTP → Flask :5000
+```
+
+`start.sh` también ejecuta `gh codespace ports visibility 5000:public` para confirmarlo via CLI.
 
 ---
 
