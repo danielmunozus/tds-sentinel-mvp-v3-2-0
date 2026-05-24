@@ -11,15 +11,15 @@ class ContactFormScreen extends StatefulWidget {
 }
 
 class _ContactFormScreenState extends State<ContactFormScreen> {
-  final _formKey      = GlobalKey<FormState>();
-  final _companyCtrl  = TextEditingController();
-  final _contactCtrl  = TextEditingController();
-  final _emailCtrl    = TextEditingController();
-  final _phoneCtrl    = TextEditingController();
-  final _messageCtrl  = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _companyCtrl = TextEditingController();
+  final _contactCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _messageCtrl = TextEditingController();
   String? _packInterest;
   bool _loading = false;
-  bool _sent    = false;
+  bool _sent = false;
 
   static const _packs = [
     'Infrastructure Basic Security',
@@ -43,19 +43,22 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     setState(() => _loading = true);
     try {
       await ApiService.instance.sendContactRequest(
-        companyName:  _companyCtrl.text,
-        contactName:  _contactCtrl.text,
-        email:        _emailCtrl.text,
-        phone:        _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text,
+        companyName: _companyCtrl.text,
+        contactName: _contactCtrl.text,
+        email: _emailCtrl.text,
+        phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text,
         packInterest: _packInterest,
-        message:      _messageCtrl.text.trim().isEmpty ? null : _messageCtrl.text,
+        message: _messageCtrl.text.trim().isEmpty ? null : _messageCtrl.text,
       );
-      setState(() { _sent = true; _loading = false; });
+      setState(() {
+        _sent = true;
+        _loading = false;
+      });
     } on ApiException catch (e) {
       setState(() => _loading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message), backgroundColor: AppColors.riskHigh));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(e.message), backgroundColor: AppColors.riskHigh));
       }
     }
   }
@@ -76,7 +79,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 80, height: 80,
+              width: 80,
+              height: 80,
               decoration: const BoxDecoration(
                 color: AppColors.riskLowBg,
                 shape: BoxShape.circle,
@@ -86,14 +90,16 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             ),
             const SizedBox(height: 24),
             const Text('¡Solicitud enviada!',
-              style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w700,
-                color: AppColors.textMain)),
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMain)),
             const SizedBox(height: 12),
             const Text(
-              'El equipo de TDS Innovate revisará tu solicitud y se pondrá en contacto contigo a la brevedad.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5)),
+                'El equipo de TDS Innovate revisará tu solicitud y se pondrá en contacto contigo a la brevedad.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 14, color: AppColors.textSecondary, height: 1.5)),
             const SizedBox(height: 32),
             OutlinedButton.icon(
               onPressed: () => Navigator.pop(context),
@@ -128,20 +134,22 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Completa el formulario y el equipo de TDS se contactará a la brevedad.',
-                      style: TextStyle(
-                          fontSize: 13, color: AppColors.textMain, height: 1.4)),
+                        'Completa el formulario y el equipo de TDS se contactará a la brevedad.',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textMain,
+                            height: 1.4)),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-
             _sectionHeader('Datos de la empresa', Icons.business_rounded),
             const SizedBox(height: 12),
             TextFormField(
               controller: _companyCtrl,
-              decoration: const InputDecoration(labelText: 'Nombre de empresa *'),
+              decoration:
+                  const InputDecoration(labelText: 'Nombre de empresa *'),
               textCapitalization: TextCapitalization.words,
               maxLength: 200,
               validator: (v) =>
@@ -150,7 +158,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _contactCtrl,
-              decoration: const InputDecoration(labelText: 'Persona de contacto *'),
+              decoration:
+                  const InputDecoration(labelText: 'Persona de contacto *'),
               textCapitalization: TextCapitalization.words,
               maxLength: 200,
               validator: (v) =>
@@ -159,7 +168,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _emailCtrl,
-              decoration: const InputDecoration(labelText: 'Email corporativo *'),
+              decoration:
+                  const InputDecoration(labelText: 'Email corporativo *'),
               keyboardType: TextInputType.emailAddress,
               autocorrect: false,
               maxLength: 200,
@@ -172,21 +182,24 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _phoneCtrl,
-              decoration: const InputDecoration(labelText: 'Teléfono (opcional)'),
+              decoration:
+                  const InputDecoration(labelText: 'Teléfono (opcional)'),
               keyboardType: TextInputType.phone,
               maxLength: 50,
             ),
             const SizedBox(height: 24),
-
             _sectionHeader('Pack de interés', Icons.inventory_2_rounded),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _packInterest,
-              decoration: const InputDecoration(labelText: 'Pack de evaluación'),
-              items: _packs.map((p) => DropdownMenuItem(
-                value: p,
-                child: Text(p, style: const TextStyle(fontSize: 14)),
-              )).toList(),
+              decoration:
+                  const InputDecoration(labelText: 'Pack de evaluación'),
+              items: _packs
+                  .map((p) => DropdownMenuItem(
+                        value: p,
+                        child: Text(p, style: const TextStyle(fontSize: 14)),
+                      ))
+                  .toList(),
               onChanged: (v) => setState(() => _packInterest = v),
             ),
             const SizedBox(height: 12),
@@ -200,12 +213,14 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
               maxLength: 1000,
             ),
             const SizedBox(height: 24),
-
             ElevatedButton(
               onPressed: _loading ? null : _submit,
               child: _loading
-                  ? const SizedBox(height: 20, width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
                   : const Text('Enviar solicitud'),
             ),
             const SizedBox(height: 32),
@@ -220,9 +235,12 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       children: [
         Icon(icon, size: 16, color: AppColors.navyDark),
         const SizedBox(width: 6),
-        Text(title, style: const TextStyle(
-          fontSize: 13, fontWeight: FontWeight.w600,
-          color: AppColors.textMain, letterSpacing: 0.3)),
+        Text(title,
+            style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textMain,
+                letterSpacing: 0.3)),
       ],
     );
   }

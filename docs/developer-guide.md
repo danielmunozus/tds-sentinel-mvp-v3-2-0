@@ -119,6 +119,57 @@ Respuesta esperada:
 
 ---
 
+## Usuario de prueba (desarrollo / Codespaces)
+
+> ⚠️ Estas credenciales son exclusivas para desarrollo local y Codespaces.  
+> **No usar en producción.**
+
+| Campo | Valor |
+|-------|-------|
+| **Email** | `admin@tds.com` |
+| **Contraseña** | `!8na!kcGciQasOlp` |
+| **Empresa** | TDS Innovate LLC |
+| **Área** | Tecnología |
+| **Estado** | `enabled` |
+
+El usuario está insertado directamente en `sentinel.db`. Si la base de datos se elimina o se recrea desde cero, es necesario volver a crearlo:
+
+```bash
+cd backend
+.venv/bin/python3 << 'EOF'
+import sqlite3, hashlib, secrets
+from datetime import datetime, timezone
+
+def hash_password(password):
+    salt = secrets.token_hex(16)
+    digest = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
+    return f"{salt}:{digest}"
+
+now = datetime.now(timezone.utc).isoformat()
+conn = sqlite3.connect("sentinel.db")
+conn.execute("""
+    INSERT INTO clients
+        (company_name, contact_name, email, phone,
+         password_hash, bs_area, client_status, created_at, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?)
+""", ("TDS Innovate LLC","Admin TDS","admin@tds.com","+1-000-000-0000",
+      hash_password("!8na!kcGciQasOlp"),"Tecnología","enabled",now,now))
+conn.commit()
+conn.close()
+print("✅ Usuario admin@tds.com creado")
+EOF
+```
+
+Para verificar que el login funciona:
+
+```bash
+curl -s -X POST http://127.0.0.1:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@tds.com","password":"!8na!kcGciQasOlp"}'
+```
+
+---
+
 ## Setup — Flutter Web
 
 ### Recompilar build
@@ -275,7 +326,7 @@ schema_version (id, version, applied_at)
 | CORS | Lista blanca de orígenes (`CORS_ORIGINS`); auto-detecta Codespaces; nunca `*` | `app.py`, `config.py` |
 | Stack traces | Errores logueados internamente, JSON limpio al cliente (4 handlers globales) | `app.py` |
 | Input sanitization | Strip + chars de control (0x00–0x1f) + strip HTML tags (`<[^>]*>`) + longitud máxima | `routes/*.py` |
-| Security headers | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `CSP` | `app.py` |
+| Security headers | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `CSP`. La directiva CSP incluye excepción para Google Fonts (`style-src fonts.googleapis.com`, `font-src fonts.gstatic.com`, `connect-src fonts.gstatic.com`) requerida para que Flutter Web (CanvasKit) cargue Montserrat en Codespaces. Solo dominios de confianza con `https://` explícito — sin comodines. | `app.py` |
 | Server header | Sobrescrito a `TDS-Sentinel` (suprime Werkzeug/Python en producción) | `app.py` |
 | Enumeración | Login devuelve mensaje genérico para email inexistente y password incorrecto | `routes/auth.py` |
 | Estado cliente | `blocked`/`disabled` bloquean login con 403 antes de verificar password | `routes/auth.py` |
@@ -347,3 +398,4 @@ Rama principal de trabajo: **`dev`**
 - [x] **v3.0.0** — Schema v3: clients auth, support tickets, contact requests, Flutter Web served by Flask
 - [x] **v3.1.0** — Autenticación Bearer token: sessions table, login_required decorator, ownership checks, security headers, HTML stripping, UUID ticket references
 - [x] **v3.2.0** — Hardening post-pentest: IDOR fix (GET /clients), self-lockout prevention (PUT /clients), TOCTOU race condition → 409 determinista (POST /clients)
+- [x] **v3.2.1** — CSP: excepción Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) para restaurar tipografía Montserrat en Flutter Web / Codespaces; fix de venv con symlinks rotos en imagen Flutter (`start.sh` auto-repara el venv al arrancar)

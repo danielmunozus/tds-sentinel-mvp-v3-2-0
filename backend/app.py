@@ -60,14 +60,19 @@ def apply_security_headers(response):
     response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
     # CSP permisiva para Flutter Web (requiere unsafe-inline/eval para CanvasKit)
     # Para producción con nginx, configurar CSP más restrictiva por ruta /api vs /
+    #
+    # Excepciones de fuentes externas de confianza (Google Fonts):
+    #   style-src   += fonts.googleapis.com  → sirve el CSS @font-face de Montserrat
+    #   font-src    += fonts.gstatic.com     → sirve los archivos .woff2 reales
+    #   connect-src += fonts.gstatic.com     → Flutter Web (CanvasKit) carga fuentes via fetch()
     response.headers.setdefault(
         "Content-Security-Policy",
         "default-src 'self' blob: data:; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; "
-        "style-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "img-src 'self' data: blob:; "
-        "font-src 'self' data:; "
-        "connect-src 'self'; "
+        "font-src 'self' data: https://fonts.gstatic.com; "
+        "connect-src 'self' https://fonts.gstatic.com; "
         "worker-src 'self' blob:;"
     )
     return response

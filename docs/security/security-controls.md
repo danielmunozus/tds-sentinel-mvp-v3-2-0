@@ -20,7 +20,7 @@
 | CORS | Lista blanca de orígenes (`CORS_ORIGINS`), nunca `*`; auto-detecta Codespaces | `app.py`, `config.py` |
 | Stack traces | Errores logueados internamente, JSON limpio al cliente (4 handlers globales) | `app.py` |
 | Input sanitization | Strip + eliminación de chars de control (0x00–0x1f) + **strip de tags HTML** (`<[^>]*>`) + longitud máxima 200 chars | `routes/*.py` |
-| **Security headers** | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy`, `Content-Security-Policy` | `app.py` |
+| **Security headers** | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy`, `Content-Security-Policy`. CSP incluye excepción explícita para Google Fonts (dominios de confianza con `https://` — sin comodines): `style-src += fonts.googleapis.com`, `font-src += fonts.gstatic.com`, `connect-src += fonts.gstatic.com`. El resto de la política permanece restrictiva (`script-src` sin CDNs externos, `default-src 'self'`). | `app.py` |
 | **Server header** | Sobrescrito a `TDS-Sentinel` (suprime versión de Werkzeug/Python) | `app.py` |
 | **UUID references** | `ticket_reference` y `request_reference` son UUIDs v4 — no revelan IDs secuenciales | `routes/auth.py` |
 | Integridad evaluaciones | SHA-256 hash por evaluación (`assessment_hash`) | `routes/assessments.py` |
@@ -80,6 +80,7 @@
 | v3.2.0 | IDOR en GET /clients y GET /clients/\<id\> | Alta | Ownership check: 403 si `id != g.current_client["id"]` |
 | v3.2.0 | Self-lockout via PUT client_status=blocked | Media | PUT /clients/\<id\> rechaza cambios de `client_status` con 403 |
 | v3.2.0 | TOCTOU race condition → 500 en email duplicado | Media | `try/except sqlite3.IntegrityError` → 409 determinista |
+| v3.2.1 | CSP bloqueaba Google Fonts → textos invisibles en Flutter Web | Media | `style-src`, `font-src` y `connect-src` ampliados con `https://fonts.googleapis.com` y `https://fonts.gstatic.com` (dominios de confianza explícitos, sin comodines). Flutter Web (CanvasKit) carga Montserrat via `fetch()` — la directiva `connect-src 'self'` original lo bloqueaba silenciosamente. |
 
 ---
 

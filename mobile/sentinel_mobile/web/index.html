@@ -29,8 +29,34 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>sentinel_mobile</title>
+  <title>TDS Sentinel</title>
   <link rel="manifest" href="manifest.json">
+
+  <!--
+    Content Security Policy — TDS Sentinel
+    Requerido para Flutter Web (CanvasKit) + Google Fonts (Montserrat).
+
+    Notas:
+    · 'unsafe-inline' y 'unsafe-eval' en script-src son obligatorios para CanvasKit.
+    · blob: y data: son obligatorios para workers y assets de Flutter Web.
+    · fonts.googleapis.com (style-src)  → sirve el CSS @font-face de Montserrat.
+    · fonts.gstatic.com  (font-src)     → sirve los archivos .woff2 reales.
+    · fonts.gstatic.com  (connect-src)  → Flutter Web carga fuentes via fetch().
+    · Sin comodines — solo dominios de confianza con https:// explícito.
+
+    IMPORTANTE: cuando Flask sirve la app, el header HTTP Content-Security-Policy
+    de app.py tiene precedencia sobre esta etiqueta meta. Mantener ambas sincronizadas.
+    Fuente de verdad del backend: backend/app.py → apply_security_headers()
+  -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' blob: data:;
+    script-src  'self' 'unsafe-inline' 'unsafe-eval' blob:;
+    style-src   'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src     'self' data: blob:;
+    font-src    'self' data: https://fonts.gstatic.com;
+    connect-src 'self' https://fonts.gstatic.com;
+    worker-src  'self' blob:;
+  ">
 </head>
 <body>
   <!--

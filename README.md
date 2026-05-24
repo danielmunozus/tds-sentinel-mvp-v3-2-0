@@ -3,7 +3,7 @@
 > **Built secure. Built to scale.**  
 > Plataforma de evaluación de riesgos de ciberseguridad para PYMEs.
 
-**Versión:** 3.2.0 · **QA:** ✅ Aprobado · **Fecha:** Mayo 2026
+**Versión:** 3.2.1 · **QA:** ✅ Aprobado · **Fecha:** Mayo 2026
 
 ---
 
@@ -199,7 +199,7 @@ La base de datos incluye migración automática desde schemas v1.x y v2.x al ini
 | CORS | Lista blanca de orígenes; auto-detecta URLs de Codespaces |
 | Errores | JSON limpio — sin stack traces expuestos al cliente |
 | Input sanitization | Strip + chars de control + strip HTML tags + longitud máxima |
-| Security headers | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `CSP` |
+| Security headers | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `CSP` con excepción explícita para Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) — requerido por Flutter Web (CanvasKit) para cargar Montserrat; sin comodines |
 | Enumeración | Login devuelve mensaje genérico para email inexistente y password incorrecto |
 | Estado cliente | `client_status` (enabled / blocked / disabled) — bloqueo antes de verificar password |
 | Integridad | SHA-256 hash por evaluación (`assessment_hash`) |

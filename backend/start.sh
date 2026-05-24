@@ -134,7 +134,42 @@ fi
 pkill -f "server.py" 2>/dev/null || true
 sleep 1
 
-# ── 2. Verificar que .env tiene SECRET_KEY ───────────────────────────────────
+# ── 2. Verificar integridad del venv ─────────────────────────────────────────
+# Detecta symlinks rotos (ej: venv creado en imagen Codespaces estándar pero
+# ejecutado en imagen Flutter que no tiene /home/codespace). Si el Python del
+# venv no resuelve a un binario real, se recrea desde /usr/bin/python3.
+_venv_py="$SCRIPT_DIR/.venv/bin/python"
+_sys_py="/usr/bin/python3"
+
+_venv_ok=false
+if [[ -f "$_venv_py" ]] && "$_venv_py" -c "import sys" > /dev/null 2>&1; then
+  _venv_ok=true
+fi
+
+if [[ "$_venv_ok" == "false" ]]; then
+  warn "venv roto o inexistente — recreando con $_sys_py..."
+
+  rm -rf "$SCRIPT_DIR/.venv"
+
+  if "$_sys_py" -m venv "$SCRIPT_DIR/.venv" 2>/dev/null; then
+    ok "venv creado (ensurepip disponible)"
+  else
+    # Fallback: bootstrap pip con get-pip.py (imagen sin python3-venv)
+    warn "ensurepip no disponible — usando get-pip.py..."
+    "$_sys_py" -m venv --without-pip "$SCRIPT_DIR/.venv"
+    curl -sS https://bootstrap.pypa.io/get-pip.py | "$SCRIPT_DIR/.venv/bin/python3" - --quiet
+    ok "venv creado + pip bootstrapped"
+  fi
+
+  ok "Instalando requirements.txt..."
+  "$SCRIPT_DIR/.venv/bin/pip" install -r "$SCRIPT_DIR/requirements.txt" -q
+  ok "Dependencias instaladas"
+
+  # Actualizar la variable PYTHON para el resto del script
+  PYTHON="$SCRIPT_DIR/.venv/bin/python"
+fi
+
+# ── 3. Verificar que .env tiene SECRET_KEY ───────────────────────────────────
 if [[ ! -f "$SCRIPT_DIR/.env" ]]; then
   warn ".env no encontrado — copiando desde .env.example"
   cp "$SCRIPT_DIR/.env.example" "$SCRIPT_DIR/.env"
@@ -154,18 +189,18 @@ if ! grep -q "^SECRET_KEY=.\+" "$SCRIPT_DIR/.env" 2>/dev/null; then
   ok "SECRET_KEY guardada en .env"
 fi
 
-# ── 3. Verificar que supervisord está disponible ──────────────────────────────
+# ── 4. Verificar que supervisord está disponible ──────────────────────────────
 if [[ ! -f "$VENV_SUPERVISORD" ]]; then
   warn "supervisord no encontrado — instalando..."
-  "$ROOT_DIR/.venv/bin/pip" install supervisor -q
+  "$SCRIPT_DIR/.venv/bin/pip" install supervisor -q
   ok "supervisor instalado"
 fi
 
-# ── 4. Lanzar supervisord ────────────────────────────────────────────────────
+# ── 5. Lanzar supervisord ────────────────────────────────────────────────────
 echo "→ Lanzando supervisord (Flask HTTP con auto-restart)..."
 "$VENV_SUPERVISORD" -c "$SUPERVISORD_CONF"
 
-# ── 5. Esperar y verificar que Flask arrancó ──────────────────────────────────
+# ── 6. Esperar y verificar que Flask arrancó ──────────────────────────────────
 echo -n "→ Esperando que Flask responda"
 for i in $(seq 1 20); do
   sleep 1
@@ -185,7 +220,7 @@ for i in $(seq 1 20); do
   fi
 done
 
-# ── 6. Exponer el puerto como público en Codespaces ──────────────────────────
+# ── 7. Exponer el puerto como público en Codespaces ──────────────────────────
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
   DOMAIN="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
   echo "→ Configurando visibilidad pública del puerto $PORT..."
