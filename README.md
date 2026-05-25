@@ -13,6 +13,97 @@ TDS Sentinel permite a empresas evaluar su nivel de riesgo de ciberseguridad med
 
 ---
 
+## 🚀 Cómo ver la app
+
+### Opción 1 — GitHub Codespaces (sin instalar nada)
+
+> Requiere una cuenta GitHub gratuita. No necesitas instalar nada en tu computador.
+
+1. Ve al repositorio en GitHub y haz clic en el botón verde **Code**
+2. Selecciona la pestaña **Codespaces**
+3. Haz clic en **Create codespace on main**
+4. Espera 1–2 minutos mientras el entorno se configura solo
+5. La API arranca automáticamente. Cuando veas esto en la terminal, está lista:
+   ```
+   ✅  Flask respondiendo en http://127.0.0.1:5000
+   ```
+6. Abre la pestaña **Ports** (parte inferior de VS Code web)
+7. Busca el puerto **5000** — si aparece como **Private**, haz clic derecho → **Port Visibility** → **Public**
+8. Haz clic en el ícono 🌐 del puerto 5000 para abrir la app en el navegador
+
+> **¿Por qué el puerto puede quedar privado?**  
+> Codespaces necesita que el puerto sea público para que puedas acceder desde tu navegador. Si la app no abre, este es el primer paso a revisar.
+
+**Credenciales de acceso para pruebas**
+
+| Campo      | Valor               |
+|------------|---------------------|
+| Email      | `admin@tds.com`     |
+| Contraseña | `!8na!kcGciQasOlp`  |
+
+> ⚠️ Solo para desarrollo y pruebas — no usar en producción.
+
+---
+
+### Opción 2 — Local (sin GitHub)
+
+> Requiere Python 3 instalado. No necesitas cuenta GitHub ni tener git instalado.
+
+1. Descarga el proyecto:
+   - En GitHub haz clic en **Code** → **Download ZIP**
+   - Descomprime el archivo en tu computador
+
+2. Abre una terminal y entra a la carpeta `backend`:
+   ```bash
+   cd tds-sentinel-mvp-v3-2-0/backend
+   ```
+
+3. Crea el entorno virtual e instala dependencias:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate      # Mac / Linux
+   # .venv\Scripts\activate       # Windows
+   pip install -r requirements.txt
+   ```
+
+4. Crea el archivo de configuración:
+   ```bash
+   cp .env.example .env
+   ```
+   Abre `.env` y reemplaza el valor de `SECRET_KEY` con cualquier texto largo:
+   ```
+   SECRET_KEY=mi_clave_secreta_larga_y_aleatoria
+   ```
+
+5. Levanta la aplicación:
+   ```bash
+   python3 app.py
+   ```
+   Para verificar que está corriendo, abre otra terminal y ejecuta:
+   ```bash
+   curl http://localhost:5000/api/health
+   ```
+   Respuesta esperada:
+   ```json
+   {"message":"TDS Sentinel API is running","status":"ok","version":"3.2.1"}
+   ```
+
+6. Abre tu navegador en:
+   ```
+   http://localhost:5000
+   ```
+
+**Credenciales de acceso para pruebas**
+
+| Campo      | Valor               |
+|------------|---------------------|
+| Email      | `admin@tds.com`     |
+| Contraseña | `!8na!kcGciQasOlp`  |
+
+> ⚠️ Solo para desarrollo y pruebas — no usar en producción.
+
+---
+
 ## Stack
 
 ```
@@ -21,44 +112,6 @@ Flutter Web  →  Flask (static + API)  →  SQLite
 ```
 
 Flask actúa como servidor único: sirve el build de Flutter Web como archivos estáticos y expone la REST API bajo `/api/*`. Todos los endpoints sensibles requieren autenticación Bearer token.
-
----
-
-## Correr en 3 pasos (local / Codespaces)
-
-### 1. Backend
-
-```bash
-cd backend
-/usr/bin/python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-# Completar SECRET_KEY en .env:
-# python3 -c "import secrets; print(secrets.token_hex(32))"
-bash start.sh
-```
-
-Verificar: `curl http://127.0.0.1:5000/api/health`
-
-Respuesta esperada:
-```json
-{"message":"TDS Sentinel API is running","status":"ok","version":"3.2.1"}
-```
-
-### 2. Flutter Web (recompilar build)
-
-```bash
-bash rebuild_web.sh
-```
-
-> El script descarga Flutter SDK si no está disponible, compila en modo release y Flask sirve el build automáticamente.
-
-### 3. Correr en Codespaces
-
-Abre el repositorio en GitHub → **Code → Codespaces → Create codespace**.  
-El entorno instala dependencias automáticamente.  
-Corre `bash backend/start.sh` para levantar la API + frontend (supervisord con auto-restart).  
-El puerto 5000 se expone públicamente en HTTP — Codespaces provee HTTPS externamente via proxy.
 
 ---
 
